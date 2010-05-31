@@ -1,0 +1,7 @@
+* Complete the API coverage
+  * Have all the properties present 
+* Have meaningful descriptions for every element
+* Have unit-tests for every element
+* Have a nice way of passing data to XUL elements
+  * Make a comet connection to update the data
+* Make a simple way to assigning functions
