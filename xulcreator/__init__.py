@@ -276,7 +276,7 @@ class Window(Xul):
         "windowtype":"string", "onopen":"string", "onclose":"string"}
         super(Window, self).__init__(element="window" , kwargs=kwargs, addprop=addprop)
         if "height" not in kwargs:
-            self.width = 600
+            self.height = 600
         if "width" not in kwargs:
             self.width = 800
         if "title" not in kwargs:
