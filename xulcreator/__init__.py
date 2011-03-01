@@ -10,10 +10,13 @@ more manageble.
 
 :copyright: 2010 Olafur Arason, see AUTHORS for more details
 :license: license_name, see LICENCE for more details
+:licence_doc: Creative Commons: Attribution-Sharelike >= v2.5
+:licence_doc_code: MIT Licence
 """
 
 
 from xml.dom.minidom import Document, CDATASection
+from attributes import p_attributes
 
 class SelfReference(Exception):
     """This is a exception that is used to catch it 
@@ -110,6 +113,18 @@ class List(object):
         self.index = self.index + 1 
         return self.list[self.index]
 
+class Attribute(object):
+    """
+    """
+    def __init__(self, attribute_name, attribute_value):
+        if attribute_name in p_attributes:
+            self.__doc__ = p_attributes[attribute_name]["doc"]
+        self.attribute_value = attribute_value
+    def __str__(self):
+        return str(self.attribute_value)
+    def __repr__(self):
+        return self.attribute_value
+
 # Here we have the strict check that is by
 # default set to False unless your debugging.
 # This causes the library to check if the
@@ -118,7 +133,7 @@ class List(object):
 # you are willing to take the performace hit.
 # But you should run this if you don't want
 # trouble in the rendering engine.
-STRICT = True
+STRICT = False
 
 class Xul(object):
     """This is the base xul element which all
@@ -127,7 +142,9 @@ class Xul(object):
     >>> x = Xul(); x+=Window(); print x
     <?xml version="1.0" ?>
     <?xml-stylesheet type="text/css" href="chrome://global/skin"?>
-    <window title="Xul Application" width="800" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"/>
+    <window height="600" title="Xul Application" width="800" xmlns="\
+http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" \
+xmlns:html="http://www.w3.org/1999/xhtml"/>
     <BLANKLINE>
     """
     def __init__(self, element=None, kwargs=None, addprop=None):
@@ -181,7 +198,8 @@ class Xul(object):
                 else:
                     self.__setattr__(key, kwargs[key])
     def __setattr__(self, name, value):
-        if name in self.__dict__ or name in ["_element", "_doc", "_properties"]:
+        if name in self.__dict__ or name in ["_element", "_doc", 
+                                             "_properties"]:
             super(Xul, self).__setattr__(name, value)
         else:
             element = self.getelement() 
@@ -189,7 +207,8 @@ class Xul(object):
                 if name in self._properties:
                     element.setAttribute(str(name), str(value))
                 else:
-                    raise StrictError("Your trying to add an attribute that is not supported by the element")
+                    raise StrictError("Your trying to add an attribute that \
+is not supported by the element")
             else:
                 element.setAttribute(str(name), str(value))
 
@@ -198,7 +217,8 @@ class Xul(object):
             super(Xul, self).__getattr__(name)
         else:
             element = self.getelement()
-            return element.getAttribute(name)
+            ret = Attribute(name, element.getAttribute(name))
+            return ret
     def _adder(self, other, parent):
         """This is a helper function so it's possible to go
         recursively through adding elements"""
@@ -214,7 +234,8 @@ class Xul(object):
                         last.parent = parent
                     else:
                         raise EmptyList("You cant start with two lists")
-                elif type(other_element).__name__=="str" or type(other).__name__=="int":
+                elif type(other_element).__name__=="str" or \
+                     type(other).__name__=="int":
                     cdata = CDATASection()
                     cdata.data = str(other_element)
                     element = parent.getelement()
@@ -228,9 +249,11 @@ class Xul(object):
                             element.appendChild(eelement)
                             last = other_element 
                         else:
-                            raise ParentList("You can't have list as an parent")
+                            raise ParentList(\
+                                  "You can't have list as an parent")
                     elif type(parent).__name__=="list":
-                        raise ParentList("You can't have list as an parent")
+                        raise ParentList(\
+                              "You can't have list as an parent")
                     else:
                         element = parent.getelement()
                         eelement = other_element.getelement()
@@ -274,7 +297,8 @@ class Window(Xul):
         "lightweightthemesfooter":"string", "screenX":"string", 
         "screenY":"string", "sizemode":"string", "title":"string", 
         "windowtype":"string", "onopen":"string", "onclose":"string"}
-        super(Window, self).__init__(element="window" , kwargs=kwargs, addprop=addprop)
+        super(Window, self).__init__(element="window" , kwargs=kwargs,
+                                     addprop=addprop)
         if "height" not in kwargs:
             self.height = 600
         if "width" not in kwargs:
@@ -317,7 +341,8 @@ class Menulist(Xul):
         "open": "string", "preference": "string", "readonly": "string", 
         "sizetopopup": "string", "tabindex": "string", "value": "string", 
         "onselect": "string"}
-        super(Menulist, self).__init__(element="menulist", kwargs=kwargs, addprop=addprop)
+        super(Menulist, self).__init__(element="menulist", kwargs=kwargs, 
+                                       addprop=addprop)
 
 class Menupopup(Xul):
     """Description
@@ -330,7 +355,8 @@ class Template(Xul):
     """
     def __init__(self, **kwargs):
         addprop = {"expr":"string", "container":"string", "member":"string"}
-        super(Template, self).__init__(element="template", kwargs=kwargs, addprop=addprop)
+        super(Template, self).__init__(element="template", kwargs=kwargs, 
+                                       addprop=addprop)
 
 class Menuitem(Xul):
     """Description
@@ -343,7 +369,8 @@ class Menuitem(Xul):
         "key":"string", "label":"string", "name":"string", 
         "selected":"string", "tabindex":"string", "etype":"string", 
         "type":"string", "validate":"string", "value":"string"}
-        super(Menuitem, self).__init__(element="menuitem", kwargs=kwargs, addprop=addprop)
+        super(Menuitem, self).__init__(element="menuitem", kwargs=kwargs, 
+                                       addprop=addprop)
 
 class Toolbarbutton(Xul):
     """Description
@@ -357,7 +384,8 @@ class Toolbarbutton(Xul):
         "eopen": "string", "open": "string", "orient": "string", 
         "tabindex": "string", "etype": "string", "type": "string",
         "validate": "string"}
-        super(Toolbarbutton, self).__init__(element="toolbarbutton", kwargs=kwargs, addprop=addprop)
+        super(Toolbarbutton, self).__init__(element="toolbarbutton", 
+                                            kwargs=kwargs, addprop=addprop)
 
 class Label(Xul):
     """Description
@@ -366,7 +394,8 @@ class Label(Xul):
         addprop = {"accesskey": "string", "control": "string", 
         "crop": "string", "disabled": "string", "href": "string", 
         "value": "string"}
-        super(Label, self).__init__(element="label", kwargs=kwargs, addprop=addprop)
+        super(Label, self).__init__(element="label", kwargs=kwargs, 
+                                    addprop=addprop)
 
 class Textbox(Xul):
     """Description
@@ -386,7 +415,8 @@ class Button(Xul):
         "eopen": "string",  "open": "string", "orient": "string", 
         "tabindex": "string", "etype": "string", "type": "string", 
         "oncommand": "string"}
-        super(Button, self).__init__(element="button", kwargs=kwargs, addprop=addprop)
+        super(Button, self).__init__(element="button", kwargs=kwargs, 
+                                     addprop=addprop)
 
 class Panel(Xul):
     """Description
@@ -443,21 +473,24 @@ class Datepicker(Xul):
         addprop = {"disabled": "string", "firstdayofweek": "string", 
         "readonly": "string", "etype": "string", "type": "string", 
         "tabindex": "string", "value": "string", "onchange": "string"}
-        super(Datepicker, self).__init__(element="datepicker", kwargs=kwargs, addprop=addprop)
+        super(Datepicker, self).__init__(element="datepicker", 
+                                         kwargs=kwargs, addprop=addprop)
 
 class Htmlscript(Xul):
     """Description
     """
     def __init__(self, **kwargs):
         addprop = {"async": "string", "src": "string", "defer": "string"}
-        super(Htmlscript, self).__init__(element="html:script", kwargs=kwargs, addprop=addprop)
+        super(Htmlscript, self).__init__(element="html:script", 
+                                         kwargs=kwargs, addprop=addprop)
 
 class Htmlembed(Xul):
     """Description
     """
     def __init__(self, **kwargs):
         addprop = {"src": "string"}
-        super(Htmlembed, self).__init__(element="html:embed", kwargs=kwargs, addprop=addprop)
+        super(Htmlembed, self).__init__(element="html:embed", 
+                                        kwargs=kwargs, addprop=addprop)
 
 class Iframe(Xul):
     """Description
@@ -465,8 +498,10 @@ class Iframe(Xul):
     def __init__(self, **kwargs):
         addprop = {"showcaret": "string", "src": "string", "type": "string", 
         "transparent": "string"}
-        super(Iframe, self).__init__(element="iframe", kwargs=kwargs, addprop=addprop)
+        super(Iframe, self).__init__(element="iframe", kwargs=kwargs, 
+                                     addprop=addprop)
 
 if __name__ == '__main__':
+    STRICT = True
     import doctest
     doctest.testmod()

@@ -11,7 +11,7 @@ This holds the attributes structure and documentation
 :licence_doc_code: MIT Licence
 """
 
-__attributes = {"align": 
+p_attributes = {"align": 
                {"type": "multiple:start, center, end, baseline, stretch,\
                         left, right", 
                 "doc":  """\
